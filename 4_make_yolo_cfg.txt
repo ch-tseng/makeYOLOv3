@@ -1,0 +1,30 @@
+https://medium.com/@manivannan_data/how-to-train-yolov3-to-detect-custom-objects-ccbcafeb13d2
+
+   for Tiny yolo v3
+   1. duplicated the yolov3-tiny.cfg file, and made the following edits:
+    Line 2: set batch=24, this means we will be using 24 images for every training step
+    Line 3: set subdivisions=8, the batch will be divided by 8 to decrease GPU VRAM requirements. If you have a powerful GPU with loads of VRAM, this number can be decreased, or batch could be increased. The training step will throw a CUDA out of memory error so you can adjust accordingly.
+    Line 120: set classes=5, the number of categories we want to detect
+    Line 127: set filters=(classes + 5)*3 in our case filters=30
+    Line 135: set classes=5, the number of categories we want to detect
+    Line 171: set filters=(classes + 5)*3 in our case filters=30
+    Line 177: set classes=5, the number of categories we want to detect
+
+   for yolo v3
+   1. duplicated the yolov3.cfg file, and made the following edits:
+    Line 3: set batch=24, this means we will be using 24 images for every training step
+    Line 4: set subdivisions=8, the batch will be divided by 8 to decrease GPU VRAM requirements.
+    Line 603: set filters=(classes + 5)*3 in our case filters=21
+    Line 610: set classes=2, the number of categories we want to detect
+    Line 689: set filters=(classes + 5)*3 in our case filters=21
+    Line 696: set classes=2, the number of categories we want to detect
+    Line 776: set filters=(classes + 5)*3 in our case filters=21
+    Line 783: set classes=2, the number of categories we want to detect
+
+
+2. download the pre-trained on Imagenet from https://pjreddie.com/media/files/darknet53.conv.74
+
+3. /media/sf_VMshare/yolo/darknet/darknet detector train cfg/obj.data cfg/yolov3-tiny.cfg darknet53.conv.74
+
+4. ./darknet detector test ../misoffice/cfg.mis/obj.data ../misoffice/cfg.mis/tiny-yolo.cfg ../misoffice/tiny-yolo_18200.weights ../misoffice/test-images/csi_1600x1600_20180
+
