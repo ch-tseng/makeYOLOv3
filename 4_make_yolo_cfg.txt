@@ -12,8 +12,8 @@ https://medium.com/@manivannan_data/how-to-train-yolov3-to-detect-custom-objects
 
    for yolo v3
    1. duplicated the yolov3.cfg file, and made the following edits:
-    Line 3: set batch=24, this means we will be using 24 images for every training step
-    Line 4: set subdivisions=8, the batch will be divided by 8 to decrease GPU VRAM requirements.
+    Line 6: set batch=24, this means we will be using 24 images for every training step
+    Line 7: set subdivisions=8, the batch will be divided by 8 to decrease GPU VRAM requirements.
     Line 603: set filters=(classes + 5)*3 in our case filters=21
     Line 610: set classes=2, the number of categories we want to detect
     Line 689: set filters=(classes + 5)*3 in our case filters=21

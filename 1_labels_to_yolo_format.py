@@ -7,15 +7,17 @@ from xml.dom import minidom
 from os.path import basename
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
+#--------------------------------------------------------------------
 folderCharacter = "/"  # \\ is for windows
 xmlFolder = "../datasets/cucumber_A/labels"
 imgFolder = "../datasets/cucumber_A/images"
 saveYoloPath = "../datasets/cucumber_A/yolo"
 classList = { "0_cucumber_flower":0, "2_cucumber_matured": 1 }
 
+#---------------------------------------------------------------------
+
 if not os.path.exists(saveYoloPath):
     os.makedirs(saveYoloPath)
-
 
 def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
     global imgFolder

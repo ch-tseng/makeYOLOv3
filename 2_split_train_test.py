@@ -2,14 +2,19 @@ import random
 import glob, os
 import os.path
 
+#---------------------------------------------------------
 testRatio = 0.2
-imageFolder = "misoffice/yolo"
-outputTrainFile = "misoffice/train.txt"
-outputTestFile = "misoffice/test.txt"
+imageFolder = "../datasets/cucumber_A/yolo"
+cfgFolder = "cfg.cucumber_A"
 folderCharacter = "/"  # \\ is for windows
-
+#--------------------------------------------------------
 
 fileList = []
+outputTrainFile = cfgFolder + "/train.txt"
+outputTestFile = cfgFolder + "/test.txt"
+
+if not os.path.exists(cfgFolder):
+    os.makedirs(cfgFolder)
 
 for file in os.listdir(imageFolder):
     filename, file_extension = os.path.splitext(file)
