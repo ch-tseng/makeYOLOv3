@@ -1,6 +1,7 @@
 import glob, os
 import os.path
 import time
+from shutil import copyfile
 import cv2
 from xml.dom import minidom
 from os.path import basename
@@ -98,4 +99,4 @@ for file in os.listdir(imgFolder):
             fileCount += 1
 
             transferYolo( xmlfile, imgfile, "")
-
+            copyfile(imgfile, saveYoloPath + folderCharacter + file)
