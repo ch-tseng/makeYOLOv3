@@ -8,7 +8,7 @@ modelType = "yolo"  #yolo or yolo-tiny
 confThreshold = 0.5  #Confidence threshold
 nmsThreshold = 0.4   #Non-maximum suppression threshold
 
-classesFile = "../darknet/data/voc.names";
+classesFile = "../darknet/data/coco.names";
 modelConfiguration = "../darknet/cfg/yolov3.cfg";
 modelWeights = "../darknet/weights/yolov3.weights";
 
@@ -16,10 +16,11 @@ displayScreen = False  #Do you want to show the image on LCD?
 outputToFile = True   #output the predicted result to image or video file
 
 #Label & Box
-fontSize = 0.55
+fontSize = 0.35
 fontBold = 1
-labelColor = (0,255,0)
-boxColor = (0,255,0)
+labelColor = (0,0,255)
+boxbold = 1
+boxColor = (255,255,255)
 #--------------------------------------------------------
 
 if(modelType=="yolo"):
@@ -112,7 +113,7 @@ def drawPred(classId, conf, left, top, right, bottom, orgFrame):
     label = '%.2f' % conf
     labelName = '%s:%s' % (classes[classId], label)
 
-    cv2.rectangle(frame, (left, top), (right, bottom), boxColor, 2)
+    cv2.rectangle(frame, (left, top), (right, bottom), boxColor, boxbold)
     cv2.putText(frame, labelName, (left, top-10), cv2.FONT_HERSHEY_COMPLEX, fontSize, labelColor, fontBold)
 
     print(labelName)
