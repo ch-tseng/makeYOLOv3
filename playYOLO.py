@@ -4,20 +4,20 @@ import cv2
 import numpy as np
 
 #--------------------------------------------------------
-modelType = "yolo-tiny"  #yolo or yolo-tiny
+modelType = "yolo"  #yolo or yolo-tiny
 confThreshold = 0.5  #Confidence threshold
 nmsThreshold = 0.4   #Non-maximum suppression threshold
 
-classesFile = "cfg.faceYolo/obj.names";
-modelConfiguration = "cfg.faceYolo/yolov3.cfg";
-modelWeights = "cfg.faceYolo/weights/yolov3_40000.weights";
+classesFile = "../darknet/data/voc.names";
+modelConfiguration = "../darknet/cfg/yolov3.cfg";
+modelWeights = "../darknet/weights/yolov3.weights";
 
 displayScreen = False  #Do you want to show the image on LCD?
 outputToFile = True   #output the predicted result to image or video file
 
 #Label & Box
-fontSize = 1.2
-fontBold = 2
+fontSize = 0.55
+fontBold = 1
 labelColor = (0,255,0)
 boxColor = (0,255,0)
 #--------------------------------------------------------
@@ -176,6 +176,6 @@ while cv2.waitKey(1) < 0:
         if(outputToFile):
             out.write(frame)
 
-        if(displayScreen(:
+        if(displayScreen):
             cv.imshow("frame", frame)
             cv.waitKey(1)
