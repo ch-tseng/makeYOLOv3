@@ -13,6 +13,7 @@ modelConfiguration = "cfg.faceYolo/yolov3.cfg";
 modelWeights = "cfg.faceYolo/weights/yolov3_40000.weights";
 
 displayScreen = False  #Do you want to show the image on LCD?
+outputToFile = True   #output the predicted result to image or video file
 
 #Label & Box
 fontSize = 1.2
@@ -63,31 +64,21 @@ def getROI_Color(roi):
     mean_blue = np.mean(roi[:,:,0])
     mean_green = np.mean(roi[:,:,1])
     mean_red = np.mean(roi[:,:,2])
-
     actual_name, closest_name = get_colour_name((mean_red, mean_green, mean_blue))
-
-    #actual_name, closest_name = get_colour_name((mean_blue, mean_green, mean_red))
 
     return actual_name, closest_name, (mean_blue, mean_green, mean_red)
 #-----------------------------------------------------------------
 
 # Get the names of the output layers
 def getOutputsNames(net):
-    # Get the names of all the layers in the network
     layersNames = net.getLayerNames()
-    # Get the names of the output layers, i.e. the layers with unconnected outputs
+
     return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
-# Remove the bounding boxes with low confidence using non-maxima suppression
 def postprocess(frame, outs, orgFrame):
     frameHeight = frame.shape[0]
     frameWidth = frame.shape[1]
  
-    classIds = []
-    confidences = []
-    boxes = []
-    # Scan through all the bounding boxes output from the network and keep only the
-    # ones with high confidence scores. Assign the box's class label as the class with the highest score.
     classIds = []
     confidences = []
     boxes = []
@@ -107,8 +98,6 @@ def postprocess(frame, outs, orgFrame):
                 confidences.append(float(confidence))
                 boxes.append([left, top, width, height])
  
-    # Perform non maximum suppression to eliminate redundant overlapping boxes with
-    # lower confidences.
     indices = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
     for i in indices:
         i = i[0]
@@ -119,7 +108,6 @@ def postprocess(frame, outs, orgFrame):
         height = box[3]
         drawPred(classIds[i], confidences[i], left, top, left + width, top + height, orgFrame)
 
-# Draw the predicted bounding box
 def drawPred(classId, conf, left, top, right, bottom, orgFrame):
     label = '%.2f' % conf
     labelName = '%s:%s' % (classes[classId], label)
@@ -152,14 +140,12 @@ elif (args.video):
 else:
     # Webcam input
     cap = cv2.VideoCapture(0)
- 
+
 i = 0
 while cv2.waitKey(1) < 0:
-     
-    # get frame from the video
     hasFrame, frame = cap.read()
+
     i += 1 
-    # Stop the program if reached end of video
     if not hasFrame:
         print("Done processing !!!")
         print("Output file is stored as ", outputFile)
@@ -167,35 +153,28 @@ while cv2.waitKey(1) < 0:
         break
 
     orgFrame = frame.copy()
-    # Create a 4D blob from a frame.
+
     blob = cv2.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
- 
-    # Sets the input to the network
     net.setInput(blob)
- 
-    # Runs the forward pass to get output of the output layers
     outs = net.forward(getOutputsNames(net))
- 
-    # Remove the bounding boxes with low confidence
     postprocess(frame, outs, orgFrame)
- 
-    # Put efficiency information. The function getPerfProfile returns the 
-    # overall time for inference(t) and the timings for each of the layers(in layersTimes)
+
     t, _ = net.getPerfProfile()
     #label = 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
 
-    #cv.putText(frame, label, (30, 40), cv.FONT_HERSHEY_SIMPLEX, 2, (0,255,0))
- 
-    # Write the frame with the detection boxes
     if (args.image):
-        cv2.imwrite(outputFile, frame.astype(np.uint8))
+
+        if(outputToFile):
+            cv2.imwrite(outputFile, frame.astype(np.uint8))
 
         if(displayScreen):
             cv2.imshow("Predicted", frame)
 
     else:
         print("Frame #{} processed.".format(i))
-        out.write(frame)
+
+        if(outputToFile):
+            out.write(frame)
 
         if(displayScreen(:
             cv.imshow("frame", frame)
