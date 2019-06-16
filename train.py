@@ -143,7 +143,8 @@ trainCount = len(fileList) - testCount
 
 a = range(len(fileList))
 test_data = random.sample(a, testCount)
-train_data = random.sample(a, trainCount)
+#train_data = random.sample(a, trainCount)
+train_data = [x for x in a if x not in test_data]
 
 with open(outputTrainFile, 'a') as the_file:
     for i in train_data:
