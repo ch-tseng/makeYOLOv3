@@ -4,8 +4,8 @@ import os.path
 
 #---------------------------------------------------------
 testRatio = 0.2
-imageFolder = "../datasets/cucumber_A/yolo"
-cfgFolder = "cfg.cucumber_A"
+imageFolder = "/home/digits/datasets/road_defect_all/yolo/"
+cfgFolder = "/home/digits/works/YOLO.projects/cfg.road.yolo_tiny.all"
 folderCharacter = "/"  # \\ is for windows
 #--------------------------------------------------------
 
@@ -30,7 +30,8 @@ trainCount = len(fileList) - testCount
 
 a = range(len(fileList))
 test_data = random.sample(a, testCount)
-train_data = random.sample(a, trainCount)
+#train_data = random.sample(a, trainCount)
+train_data = [x for x in a if x not in test_data]
 
 print ("Train:{} images".format(len(train_data)))
 print("Test:{} images".format(len(test_data)))
