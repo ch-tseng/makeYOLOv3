@@ -30,7 +30,8 @@ trainCount = len(fileList) - testCount
 
 a = range(len(fileList))
 test_data = random.sample(a, testCount)
-train_data = random.sample(a, trainCount)
+#train_data = random.sample(a, trainCount)
+train_data = [x for x in a if x not in test_data]
 
 print ("Train:{} images".format(len(train_data)))
 print("Test:{} images".format(len(test_data)))
