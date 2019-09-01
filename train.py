@@ -10,21 +10,21 @@ from os.path import basename
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
 #--------------------------------------------------------------------
-folderCharacter = "/"  # \\ is for windows
-xmlFolder = "/media/sf_ShareFolder/tomato_A/labels"
-imgFolder = "/media/sf_ShareFolder/tomato_A/images"
-saveYoloPath = "/media/sf_ShareFolder/tomato_A/yolo"
-classList = { "0_tomato_flower":0, "1_tomato_young": 1 }
+#folderCharacter = "/"  # \\ is for windows
+xmlFolder = "/home/digits/datasets/palm_dataset/labels"
+imgFolder = "/home/digits/datasets/palm_dataset/images"
+saveYoloPath = "/home/digits/datasets/palm_dataset/yolo"
+classList = { "palm":0 }
 
 modelYOLO = "yolov3-tiny"  #yolov3 or yolov3-tiny
 testRatio = 0.2
-cfgFolder = "cfg.tomato_A"
+cfgFolder = "cfg.palm"
 cfg_obj_names = "obj.names"
 cfg_obj_data = "obj.data"
 
 numBatch = 24
 numSubdivision = 8
-darknetEcec = "../darknet/darknet"
+darknetEcec = "/home/digits/works/darknet/darknet"
 
 #---------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
     for elem in tmpArrays:
         labelYmax.append(int(elem.firstChild.data))
 
-    yoloFilename = saveYoloPath + folderCharacter + img_filename + ".txt"
+    yoloFilename = os.path.join(saveYoloPath ,img_filename + ".txt")
     #print("writeing to {}".format(yoloFilename))
 
     with open(yoloFilename, 'a') as the_file:
@@ -109,8 +109,8 @@ for file in os.listdir(imgFolder):
     file_extension = file_extension.lower()
 
     if(file_extension == ".jpg" or file_extension==".png" or file_extension==".jpeg" or file_extension==".bmp"):
-        imgfile = imgFolder + folderCharacter + file
-        xmlfile = xmlFolder + folderCharacter + filename + ".xml"
+        imgfile = os.path.join(imgFolder ,file)
+        xmlfile = os.path.join(xmlFolder ,filename + ".xml")
 
         if(os.path.isfile(xmlfile)):
             #print("id:{}".format(fileCount))
@@ -119,7 +119,7 @@ for file in os.listdir(imgFolder):
             fileCount += 1
 
             transferYolo( xmlfile, imgfile, "")
-            copyfile(imgfile, saveYoloPath + folderCharacter + file)
+            copyfile(imgfile, os.path.join(saveYoloPath ,file))
 
 print("        {} images transered.".format(fileCount))
 # step2 ---------------------------------------------------------------
@@ -136,7 +136,7 @@ for file in os.listdir(saveYoloPath):
     file_extension = file_extension.lower()
 
     if(file_extension == ".jpg" or file_extension==".jpeg" or file_extension==".png" or file_extension==".bmp"):
-        fileList.append(saveYoloPath + folderCharacter + file)
+        fileList.append(os.path.join(saveYoloPath ,file))
 
 testCount = int(len(fileList) * testRatio)
 trainCount = len(fileList) - testCount
@@ -167,20 +167,20 @@ print("Step 3. Generate data & names files under "+cfgFolder+ " folder, and upda
 
 classes = len(classList)
 
-if not os.path.exists(cfgFolder + folderCharacter + "weights"):
-    os.makedirs(cfgFolder + folderCharacter + "weights")
-    print("all weights will generated in here: " + cfgFolder + folderCharacter + "weights" + folderCharacter)
+if not os.path.exists(os.path.join(cfgFolder ,"weights")):
+    os.makedirs(os.path.join(cfgFolder ,"weights"))
+    print("all weights will generated in here: " + os.path.join(cfgFolder ,"weights"))
 
-with open(cfgFolder + folderCharacter + cfg_obj_data, 'w') as the_file:
+with open(os.path.join(cfgFolder ,cfg_obj_data), 'w') as the_file:
     the_file.write("classes= " + str(classes) + "\n")
-    the_file.write("train  = " + cfgFolder + folderCharacter + "train.txt\n")
-    the_file.write("valid  = " + cfgFolder + folderCharacter + "test.txt\n")
-    the_file.write("names = " + cfgFolder + folderCharacter + "obj.names\n")
-    the_file.write("backup = " + cfgFolder + folderCharacter + "weights/")
+    the_file.write("train  = " + os.path.join(cfgFolder ,"train.txt") + "\n")
+    the_file.write("valid  = " + os.path.join(cfgFolder ,"test.txt") + "\n")
+    the_file.write("names = " + os.path.join(cfgFolder ,"obj.names") + "\n")
+    the_file.write("backup = " + os.path.join(cfgFolder ,"weights"))
 
 the_file.close()
 
-with open(cfgFolder + folderCharacter + cfg_obj_names, 'w') as the_file:
+with open(os.path.join(cfgFolder ,cfg_obj_names), 'w') as the_file:
     for className in classList:
         the_file.write(className + "\n")
 
@@ -202,7 +202,7 @@ if(modelYOLO == "yolov3"):
 else:
     fileCFG = "yolov3-tiny.cfg"
 
-with open("cfg"+folderCharacter+fileCFG) as file:
+with open(os.path.join("cfg",fileCFG)) as file:
     file_content = file.read()
 
 file.close
@@ -212,17 +212,17 @@ file_updated = file_updated.replace("{SUBDIVISIONS}", str(numSubdivision))
 file_updated = file_updated.replace("{FILTERS}", str(filterNum))
 file_updated = file_updated.replace("{CLASSES}", str(classNum))
 
-file = open(cfgFolder+folderCharacter+fileCFG, "w")
+file = open(os.path.join(cfgFolder,fileCFG), "w")
 file.write(file_updated)
 file.close
 
-executeCmd = darknetEcec + " detector train " + cfgFolder + folderCharacter + \
-    "obj.data " + cfgFolder + folderCharacter + fileCFG + " darknet53.conv.74"
+executeCmd = darknetEcec + " detector train " + os.path.join(cfgFolder,"obj.data") + " " \
+    + os.path.join(cfgFolder,fileCFG) + " darknet53.conv.74"
 
-print("        execute darknet training command:")
+print("        please copy and paste to run the darknet training command below:")
 print("          " + executeCmd)
 print("")
-print("        you can find all the weights files here:" + cfgFolder + folderCharacter + "weights" + folderCharacter)
+print("        after training, you can find all the weights files here:" + os.path.join(cfgFolder ,"weights"))
 
 time.sleep(3)
-call(executeCmd.split())
+#call(executeCmd.split())
