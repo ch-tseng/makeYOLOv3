@@ -10,7 +10,6 @@ from os.path import basename
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
 #--------------------------------------------------------------------
-#folderCharacter = "/"  # \\ is for windows
 xmlFolder = "/home/digits/datasets/palm_dataset/labels"
 imgFolder = "/home/digits/datasets/palm_dataset/images"
 saveYoloPath = "/home/digits/datasets/palm_dataset/yolo"
