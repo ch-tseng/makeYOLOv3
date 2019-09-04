@@ -21,8 +21,9 @@ cfgFolder = "cfg.palm"
 cfg_obj_names = "obj.names"
 cfg_obj_data = "obj.data"
 
+negative_images = True  #treate images with no xml files as negative images
 numBatch = 24
-numSubdivision = 8
+numSubdivision = 3
 darknetEcec = "/home/digits/works/darknet/darknet"
 
 #---------------------------------------------------------------------
@@ -37,65 +38,70 @@ def downloadPretrained(url):
 
 def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
     global imgFolder
-    
+
     img_file, img_file_extension = os.path.splitext(imgFilepath)
     img_filename = basename(img_file)
-    #print(imgFilepath)
-    img = cv2.imread(imgFilepath)
-    imgShape = img.shape
-    #print (img.shape)
-    img_h = imgShape[0]
-    img_w = imgShape[1]
-
-    labelXML = minidom.parse(xmlFilepath)
-    labelName = []
-    labelXmin = []
-    labelYmin = []
-    labelXmax = []
-    labelYmax = []
-    totalW = 0
-    totalH = 0
-    countLabels = 0
-
-    tmpArrays = labelXML.getElementsByTagName("filename")
-    for elem in tmpArrays:
-        filenameImage = elem.firstChild.data
-
-    tmpArrays = labelXML.getElementsByTagName("name")
-    for elem in tmpArrays:
-        labelName.append(str(elem.firstChild.data))
-
-    tmpArrays = labelXML.getElementsByTagName("xmin")
-    for elem in tmpArrays:
-        labelXmin.append(int(elem.firstChild.data))
-
-    tmpArrays = labelXML.getElementsByTagName("ymin")
-    for elem in tmpArrays:
-        labelYmin.append(int(elem.firstChild.data))
-
-    tmpArrays = labelXML.getElementsByTagName("xmax")
-    for elem in tmpArrays:
-        labelXmax.append(int(elem.firstChild.data))
-
-    tmpArrays = labelXML.getElementsByTagName("ymax")
-    for elem in tmpArrays:
-        labelYmax.append(int(elem.firstChild.data))
-
     yoloFilename = os.path.join(saveYoloPath ,img_filename + ".txt")
-    #print("writeing to {}".format(yoloFilename))
+
+    if(xmlFilepath is not None or negative_images is False):
+        #print(imgFilepath)
+        img = cv2.imread(imgFilepath)
+        imgShape = img.shape
+        #print (img.shape)
+        img_h = imgShape[0]
+        img_w = imgShape[1]
+
+        labelXML = minidom.parse(xmlFilepath)
+        labelName = []
+        labelXmin = []
+        labelYmin = []
+        labelXmax = []
+        labelYmax = []
+        totalW = 0
+        totalH = 0
+        countLabels = 0
+
+        tmpArrays = labelXML.getElementsByTagName("filename")
+        for elem in tmpArrays:
+            filenameImage = elem.firstChild.data
+
+        tmpArrays = labelXML.getElementsByTagName("name")
+        for elem in tmpArrays:
+            labelName.append(str(elem.firstChild.data))
+
+        tmpArrays = labelXML.getElementsByTagName("xmin")
+        for elem in tmpArrays:
+            labelXmin.append(int(elem.firstChild.data))
+
+        tmpArrays = labelXML.getElementsByTagName("ymin")
+        for elem in tmpArrays:
+            labelYmin.append(int(elem.firstChild.data))
+
+        tmpArrays = labelXML.getElementsByTagName("xmax")
+        for elem in tmpArrays:
+            labelXmax.append(int(elem.firstChild.data))
+
+        tmpArrays = labelXML.getElementsByTagName("ymax")
+        for elem in tmpArrays:
+            labelYmax.append(int(elem.firstChild.data))
+
 
     with open(yoloFilename, 'a') as the_file:
-        i = 0
-        for className in labelName:
-            if(className==labelGrep or labelGrep==""):
-                classID = classList[className]
-                x = (labelXmin[i] + (labelXmax[i]-labelXmin[i])/2) * 1.0 / img_w 
-                y = (labelYmin[i] + (labelYmax[i]-labelYmin[i])/2) * 1.0 / img_h
-                w = (labelXmax[i]-labelXmin[i]) * 1.0 / img_w
-                h = (labelYmax[i]-labelYmin[i]) * 1.0 / img_h
+        if(xmlFilepath is not None or negative_images is False):
+            i = 0
+            for className in labelName:
+                if(className==labelGrep or labelGrep==""):
+                    classID = classList[className]
+                    x = (labelXmin[i] + (labelXmax[i]-labelXmin[i])/2) * 1.0 / img_w 
+                    y = (labelYmin[i] + (labelYmax[i]-labelYmin[i])/2) * 1.0 / img_h
+                    w = (labelXmax[i]-labelXmin[i]) * 1.0 / img_w
+                    h = (labelYmax[i]-labelYmin[i]) * 1.0 / img_h
 
-                the_file.write(str(classID) + ' ' + str(x) + ' ' + str(y) + ' ' + str(w) + ' ' + str(h) + '\n')
-                i += 1
+                    the_file.write(str(classID) + ' ' + str(x) + ' ' + str(y) + ' ' + str(w) + ' ' + str(h) + '\n')
+                    i += 1
+
+        else:
+            the_file.write('')
 
     the_file.close()
 
@@ -103,6 +109,9 @@ def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
 fileCount = 0
 
 print("Step 1. Transfer VOC dataset to YOLO dataset.")
+if(negative_images is True):
+    print("If there is no xml with same names for the images, those images will be treated as negative images.")
+
 for file in os.listdir(imgFolder):
     filename, file_extension = os.path.splitext(file)
     file_extension = file_extension.lower()
@@ -118,6 +127,10 @@ for file in os.listdir(imgFolder):
             fileCount += 1
 
             transferYolo( xmlfile, imgfile, "")
+            copyfile(imgfile, os.path.join(saveYoloPath ,file))
+
+        elif(negative_images is True):
+            transferYolo( None, imgfile, "")
             copyfile(imgfile, os.path.join(saveYoloPath ,file))
 
 print("        {} images transered.".format(fileCount))
