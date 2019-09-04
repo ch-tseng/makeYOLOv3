@@ -1,0 +1,110 @@
+https://github.com/AlexeyAB/darknet#how-to-improve-object-detection
+
+set flag random=1 in your .cfg-file - it will increase precision by training Yolo for different resolutions: link
+
+increase network resolution in your .cfg-file (height=608, width=608 or any value multiple of 32) - it will increase precision
+
+recalculate anchors for your dataset for width and height from cfg-file: darknet.exe detector calc_anchors data/obj.data -num_of_clusters 9 -width 416 -height 416 then set the same 9 anchors in each of 3 [yolo]-layers in your cfg-file
+
+(also you can change indexes of anchors masks= for each [yolo]-layer, so that 1st-[yolo]-layer has anchors larger than 60x60, 2nd larger than 30x30, 3rd remaining)
+
+check that each object are mandatory labeled in your dataset - no one object in your data set should not be without label. In the most training issues - there are wrong labels in your dataset (got labels by using some conversion script, marked with a third-party tool, ...). Always check your dataset by using: https://github.com/AlexeyAB/Yolo_mark
+
+desirable that your training dataset include images with objects at diffrent: scales, rotations, lightings, from different sides, on different backgrounds - you should preferably have 2000 different images for each class or more, and you should train 2000*classes iterations or more
+
+desirable that your training dataset include images with non-labeled objects that you do not want to detect - negative samples without bounded box (empty .txt files) - use as many images of negative samples as there are images with objects
+
+for training with a large number of objects in each image, add the parameter max=200 or higher value in the last [yolo]-layer or [region]-layer in your cfg-file (the global maximum number of objects that can be detected by YoloV3 is 0,0615234375*(width*height) where are width and height are parameters from [net] section in cfg-file)
+
+for training for small objects - set layers = -1, 11 instead of https://github.com/AlexeyAB/darknet/blob/6390a5a2ab61a0bdf6f1a9a6b4a739c16b36e0d7/cfg/yolov3.cfg#L720 and set stride=4 instead of https://github.com/AlexeyAB/darknet/blob/6390a5a2ab61a0bdf6f1a9a6b4a739c16b36e0d7/cfg/yolov3.cfg#L717
+
+for training for both small and large objects use modified models:
+
+Full-model: 5 yolo layers: https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov3_5l.cfg
+Tiny-model: 3 yolo layers: https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov3-tiny_3l.cfg
+Spatial-full-model: 3 yolo layers: https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov3-spp.cfg
+If you train the model to distinguish Left and Right objects as separate classes (left/right hand, left/right-turn on road signs, ...) then for disabling flip data augmentation - add flip=0 here: https://github.com/AlexeyAB/darknet/blob/3d2d0a7c98dbc8923d9ff705b81ff4f7940ea6ff/cfg/yolov3.cfg#L17
+
+General rule - your training dataset should include such a set of relative sizes of objects that you want to detect:
+
+train_network_width * train_obj_width / train_image_width ~= detection_network_width * detection_obj_width / detection_image_width
+train_network_height * train_obj_height / train_image_height ~= detection_network_height * detection_obj_height / detection_image_height
+I.e. for each object from Test dataset there must be at least 1 object in the Training dataset with the same class_id and about the same relative size:
+
+object width in percent from Training dataset ~= object width in percent from Test dataset
+
+That is, if only objects that occupied 80-90% of the image were present in the training set, then the trained network will not be able to detect objects that occupy 1-10% of the image.
+
+to speedup training (with decreasing detection accuracy) do Fine-Tuning instead of Transfer-Learning, set param stopbackward=1 here: https://github.com/AlexeyAB/darknet/blob/6d44529cf93211c319813c90e0c1adb34426abe5/cfg/yolov3.cfg#L548 then do this command: ./darknet partial cfg/yolov3.cfg yolov3.weights yolov3.conv.81 81 will be created file yolov3.conv.81, then train by using weights file yolov3.conv.81 instead of darknet53.conv.74
+
+The more different objects you want to detect, the more complex network model should be used. But each: model of object, side, illimination, scale, each 30 grad of the turn and inclination angles - these are different objects from a neural network perspective.
+
+After training - for detection:
+Increase network-resolution by set in your .cfg-file (height=608 and width=608) or (height=832 and width=832) or (any value multiple of 32) - this increases the precision and makes it possible to detect small objects: link
+
+it is not necessary to train the network again, just use .weights-file already trained for 416x416 resolution
+but to get even greater accuracy you should train with higher resolution 608x608 or 832x832, note: if error Out of memory occurs then in .cfg-file you should increase subdivisions=16, 32 or 64: link
+How to mark bounded boxes of objects and create annotation files:
+Here you can find repository with GUI-software for marking bounded boxes of objects and generating annotation files for Yolo v2 & v3: https://github.com/AlexeyAB/Yolo_mark
+
+With example of: train.txt, obj.names, obj.data, yolo-obj.cfg, air1-6.txt, bird1-4.txt for 2 classes of objects (air, bird) and train_obj.cmd with example how to train this image-set with Yolo v2 & v3
+
+Using Yolo9000
+Simultaneous detection and classification of 9000 objects: darknet.exe detector test cfg/combine9k.data cfg/yolo9000.cfg yolo9000.weights data/dog.jpg
+
+yolo9000.weights - (186 MB Yolo9000 Model) requires 4 GB GPU-RAM: http://pjreddie.com/media/files/yolo9000.weights
+
+yolo9000.cfg - cfg-file of the Yolo9000, also there are paths to the 9k.tree and coco9k.map https://github.com/AlexeyAB/darknet/blob/617cf313ccb1fe005db3f7d88dec04a04bd97cc2/cfg/yolo9000.cfg#L217-L218
+
+9k.tree - WordTree of 9418 categories - <label> <parent_it>, if parent_id == -1 then this label hasn't parent: https://raw.githubusercontent.com/AlexeyAB/darknet/master/build/darknet/x64/data/9k.tree
+
+coco9k.map - map 80 categories from MSCOCO to WordTree 9k.tree: https://raw.githubusercontent.com/AlexeyAB/darknet/master/build/darknet/x64/data/coco9k.map
+
+combine9k.data - data file, there are paths to: 9k.labels, 9k.names, inet9k.map, (change path to your combine9k.train.list): https://raw.githubusercontent.com/AlexeyAB/darknet/master/build/darknet/x64/data/combine9k.data
+
+9k.labels - 9418 labels of objects: https://raw.githubusercontent.com/AlexeyAB/darknet/master/build/darknet/x64/data/9k.labels
+
+9k.names - 9418 names of objects: https://raw.githubusercontent.com/AlexeyAB/darknet/master/build/darknet/x64/data/9k.names
+
+inet9k.map - map 200 categories from ImageNet to WordTree 9k.tree: https://raw.githubusercontent.com/AlexeyAB/darknet/master/build/darknet/x64/data/inet9k.map
+
+How to use Yolo as DLL
+To compile Yolo as C++ DLL-file yolo_cpp_dll.dll - open in MSVS2015 file build\darknet\yolo_cpp_dll.sln, set x64 and Release, and do the: Build -> Build yolo_cpp_dll
+
+You should have installed CUDA 10.0
+To use cuDNN do: (right click on project) -> properties -> C/C++ -> Preprocessor -> Preprocessor Definitions, and add at the beginning of line: CUDNN;
+To use Yolo as DLL-file in your C++ console application - open in MSVS2015 file build\darknet\yolo_console_dll.sln, set x64 and Release, and do the: Build -> Build yolo_console_dll
+
+you can run your console application from Windows Explorer build\darknet\x64\yolo_console_dll.exe use this command: yolo_console_dll.exe data/coco.names yolov3.cfg yolov3.weights test.mp4
+
+after launching your console application and entering the image file name - you will see info for each object: <obj_id> <left_x> <top_y> <width> <height> <probability>
+
+to use simple OpenCV-GUI you should uncomment line //#define OPENCV in yolo_console_dll.cpp-file: link
+
+you can see source code of simple example for detection on the video file: link
+
+yolo_cpp_dll.dll-API: link
+
+struct bbox_t {
+    unsigned int x, y, w, h;    // (x,y) - top-left corner, (w, h) - width & height of bounded box
+    float prob;                    // confidence - probability that the object was found correctly
+    unsigned int obj_id;        // class of object - from range [0, classes-1]
+    unsigned int track_id;        // tracking id for video (0 - untracked, 1 - inf - tracked object)
+    unsigned int frames_counter;// counter of frames on which the object was detected
+};
+
+class Detector {
+public:
+        Detector(std::string cfg_filename, std::string weight_filename, int gpu_id = 0);
+        ~Detector();
+
+        std::vector<bbox_t> detect(std::string image_filename, float thresh = 0.2, bool use_mean = false);
+        std::vector<bbox_t> detect(image_t img, float thresh = 0.2, bool use_mean = false);
+        static image_t load_image(std::string image_filename);
+        static void free_image(image_t m);
+
+#ifdef OPENCV
+        std::vector<bbox_t> detect(cv::Mat mat, float thresh = 0.2, bool use_mean = false);
+	std::shared_ptr<image_t> mat_to_image_resize(cv::Mat mat) const;
+#endif
+};
