@@ -9,11 +9,13 @@ from os.path import basename
 
 #--------------------------------------------------------------------
 folderCharacter = "/"  # \\ is for windows
-xmlFolder = "/media/sf_datasets/categories/breads_POS/labels"
-imgFolder = "/media/sf_datasets/categories/breads_POS/images"
-negFolder = "/media/sf_datasets/categories/breads_POS/negatives"
-saveYoloPath = "/media/sf_datasets/categories/breads_POS/yolo"
-classList = { "b01a":0, "b01b":1, "b01c":2, "b02":3, "b03":4, "b04":5, "b05":6, "b06":7, "b07": 8, "b08": 9, "b09": 10, "b10": 11, "b11": 12 }
+xmlFolder = "/WORK1/dataset/breads_20191125/labels"
+imgFolder = "/WORK1/dataset/breads_20191125/images"
+#negFolder = "/home/chtseng/datasets/12_hand_gestures/negatives"
+negFolder = ""
+saveYoloPath = "/WORK1/dataset/breads_20191125/yolo"
+classList = { "a1":0, "a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":7, "a9": 8, "a10": 9,\
+     "a11": 10, "a12": 11 }
 
 #---------------------------------------------------------------------
 
@@ -68,7 +70,7 @@ def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
         for elem in tmpArrays:
             labelYmax.append(int(elem.firstChild.data))
 
-        yoloFilename = saveYoloPath + folderCharacter + img_filename + ".txt"
+        yoloFilename = os.path.join(saveYoloPath, img_filename + ".txt")
         print("writeing to {}".format(yoloFilename))
 
         with open(yoloFilename, 'a') as the_file:
@@ -85,7 +87,7 @@ def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
                     i += 1
 
     else:
-        yoloFilename = saveYoloPath + folderCharacter + img_filename + ".txt"
+        yoloFilename = os.path.join(saveYoloPath ,img_filename + ".txt")
         print("writeing negative file to {}".format(yoloFilename))
 
         with open(yoloFilename, 'a') as the_file:
@@ -101,8 +103,8 @@ for file in os.listdir(imgFolder):
     file_extension = file_extension.lower()
 
     if(file_extension == ".jpg" or file_extension==".png" or file_extension==".jpeg" or file_extension==".bmp"):
-        imgfile = imgFolder + folderCharacter + file
-        xmlfile = xmlFolder + folderCharacter + filename + ".xml"
+        imgfile = os.path.join(imgFolder, file)
+        xmlfile = os.path.join(xmlFolder ,filename + ".xml")
 
         if(os.path.isfile(xmlfile)):
             print("id:{}".format(fileCount))
@@ -111,13 +113,14 @@ for file in os.listdir(imgFolder):
             fileCount += 1
 
             transferYolo( xmlfile, imgfile, "")
-            copyfile(imgfile, saveYoloPath + folderCharacter + file)
+            copyfile(imgfile, os.path.join(saveYoloPath ,file))
 
-for file in os.listdir(negFolder):
-    filename, file_extension = os.path.splitext(file)
-    file_extension = file_extension.lower()
-    imgfile = negFolder + folderCharacter + file
+if(os.path.exists(negFolder)):
+    for file in os.listdir(negFolder):
+        filename, file_extension = os.path.splitext(file)
+        file_extension = file_extension.lower()
+        imgfile = os.path.join(negFolder ,file)
 
-    if(file_extension == ".jpg" or file_extension==".png" or file_extension==".jpeg" or file_extension==".bmp"):
-        transferYolo( None, imgfile, "")
-        copyfile(imgfile, saveYoloPath + folderCharacter + file)
+        if(file_extension == ".jpg" or file_extension==".png" or file_extension==".jpeg" or file_extension==".bmp"):
+            transferYolo( None, imgfile, "")
+            copyfile(imgfile, os.path.join(saveYoloPath ,file))

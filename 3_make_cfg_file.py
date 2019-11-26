@@ -1,13 +1,12 @@
 import os
 
 #-------------------------------------------------------------
-classes = 2
+classes = 12
 
 #Same with you defined in 1_labels_to_yolo_format.py
-classList = { "0_cucumber_flower":0, "2_cucumber_matured": 1 }
-
+classList = { "a1":0, "a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":7, "a9": 8, "a10": 9, "a11": 10, "a12": 11 }
 folderCharacter = "/"  # \\ is for windows
-cfgFolder = "cfg.cucumber_A"
+cfgFolder = "/WORK1/dataset/breads_20191125/cfg.breads_20191125"
 
 #-------------------------------------------------------------
 

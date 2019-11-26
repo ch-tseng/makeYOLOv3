@@ -1,6 +1,6 @@
 # -*- coding=utf-8 -*-
 # ex:
-# python 0_kmeans_anchors.py -filelist cfg.palm/train.txt -num 6 -output_dir cfg.palm/ -yolo_version yolov3
+# python 0_kmeans_anchors.py -filelist /WORK1/dataset/breads_20191125/cfg.breads_20191125/train.txt -num 9 -output_dir /WORK1/dataset/breads_20191125/cfg.breads_20191125/ -yolo_version yolov3 -yolo_input_shape 608
 
 from os import listdir
 from os.path import isfile, join

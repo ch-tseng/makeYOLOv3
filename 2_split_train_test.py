@@ -4,14 +4,14 @@ import os.path
 
 #---------------------------------------------------------
 testRatio = 0.2
-imageFolder = "/home/digits/datasets/road_defect_all/yolo/"
-cfgFolder = "/home/digits/works/YOLO.projects/cfg.road.yolo_tiny.all"
+imageFolder = "/WORK1/dataset/breads_20191125/yolo/"
+cfgFolder = "/WORK1/dataset/breads_20191125/cfg.breads_20191125"
 folderCharacter = "/"  # \\ is for windows
 #--------------------------------------------------------
 
 fileList = []
-outputTrainFile = cfgFolder + "/train.txt"
-outputTestFile = cfgFolder + "/test.txt"
+outputTrainFile = os.path.join(cfgFolder,"train.txt")
+outputTestFile = os.path.join(cfgFolder ,"test.txt")
 
 if not os.path.exists(cfgFolder):
     os.makedirs(cfgFolder)
@@ -21,7 +21,7 @@ for file in os.listdir(imageFolder):
     file_extension = file_extension.lower()
 
     if(file_extension == ".jpg" or file_extension==".jpeg" or file_extension==".png" or file_extension==".bmp"):
-        fileList.append(imageFolder + folderCharacter + file)
+        fileList.append(os.path.join(imageFolder, file))
 
 print("total image files: ", len(fileList))
 
