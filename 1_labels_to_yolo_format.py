@@ -9,20 +9,19 @@ from os.path import basename
 
 #--------------------------------------------------------------------
 folderCharacter = "/"  # \\ is for windows
-xmlFolder = "/WORK1/dataset/breads_20191125/labels"
-imgFolder = "/WORK1/dataset/breads_20191125/images"
+xmlFolder = "/DATA1/Datasets_mine/labeled/crowd_human_dataset/labels"
+imgFolder = "/DATA1/Datasets_mine/labeled/crowd_human_dataset/images"
 #negFolder = "/home/chtseng/datasets/12_hand_gestures/negatives"
 negFolder = ""
-saveYoloPath = "/WORK1/dataset/breads_20191125/yolo"
-classList = { "a1":0, "a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":7, "a9": 8, "a10": 9,\
-     "a11": 10, "a12": 11 }
+saveYoloPath = "/DATA1/Datasets_mine/labeled/crowd_human_dataset/yolo"
+classList = { "person_head":0, "person_vbox":1, "person_fbox":2 }
 
 #---------------------------------------------------------------------
 
 if not os.path.exists(saveYoloPath):
     os.makedirs(saveYoloPath)
 
-def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
+def transferYolo( xmlFilepath, imgFilepath):
     global imgFolder
 
     img_file, img_file_extension = os.path.splitext(imgFilepath)
@@ -76,7 +75,7 @@ def transferYolo( xmlFilepath, imgFilepath, labelGrep=""):
         with open(yoloFilename, 'a') as the_file:
             i = 0
             for className in labelName:
-                if(className==labelGrep or labelGrep==""):
+                if(className in classList):
                     classID = classList[className]
                     x = (labelXmin[i] + (labelXmax[i]-labelXmin[i])/2) * 1.0 / img_w 
                     y = (labelYmin[i] + (labelYmax[i]-labelYmin[i])/2) * 1.0 / img_h
@@ -112,7 +111,7 @@ for file in os.listdir(imgFolder):
             print("processing {}".format(xmlfile))
             fileCount += 1
 
-            transferYolo( xmlfile, imgfile, "")
+            transferYolo( xmlfile, imgfile)
             copyfile(imgfile, os.path.join(saveYoloPath ,file))
 
 if(os.path.exists(negFolder)):
