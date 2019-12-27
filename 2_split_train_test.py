@@ -4,9 +4,8 @@ import os.path
 
 #---------------------------------------------------------
 testRatio = 0.2
-imageFolder = "/WORK1/dataset/breads_20191125/yolo/"
-cfgFolder = "/WORK1/dataset/breads_20191125/cfg.breads_20191125"
-folderCharacter = "/"  # \\ is for windows
+imageFolder = "/home/chtseng/works/yolo_person_model/dataset/head_body/yolo"
+cfgFolder = "/home/chtseng/works/yolo_person_model/yolo_config"
 #--------------------------------------------------------
 
 fileList = []

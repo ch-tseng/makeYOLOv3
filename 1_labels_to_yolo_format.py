@@ -8,7 +8,6 @@ from os.path import basename
 #from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
 #--------------------------------------------------------------------
-folderCharacter = "/"  # \\ is for windows
 xmlFolder = "/DATA1/Datasets_mine/labeled/crowd_human_dataset/labels"
 imgFolder = "/DATA1/Datasets_mine/labeled/crowd_human_dataset/images"
 #negFolder = "/home/chtseng/datasets/12_hand_gestures/negatives"
