@@ -1,12 +1,11 @@
 import os
 
 #-------------------------------------------------------------
-classes = 13
+classes = 2
 
 #Same with you defined in 1_labels_to_yolo_format.py
-classList = { "person_head":0, "person_vbox":1, "person_fbox":2 }
-folderCharacter = "/"  # \\ is for windows
-cfgFolder = "/WORK1/dataset/breads_20191125_v2/cfg.breads_20191125"
+classList = { "person_head":0, "person_vbox":1 }
+cfgFolder = "/home/chtseng/works/yolo_person_model/yolo_config"
 
 #-------------------------------------------------------------
 
